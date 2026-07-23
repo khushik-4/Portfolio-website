@@ -2,7 +2,7 @@
 
 A personal portfolio showcasing my projects, technical interests, and journey as an aspiring Software Development Engineer.
 
-**Live Website:** https://your-portfolio-link.vercel.app
+**Live Website:** https://khusheee-portfolio.vercel.app/
 
 ---
 
