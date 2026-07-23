@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Khushi Kumari | Software Developer & Security Researcher</title>
+  <meta name="description"
+    content="Portfolio of Khushi Kumari - Software Developer & Cybersecurity Researcher specializing in Post-Quantum Cryptography, C++ systems, and full-stack applications.">
+
+  <!-- High-Impact Google Fonts Import: Instrument Serif, Playfair Display, Space Grotesk, Outfit, JetBrains Mono, Courier Prime -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@1,400;1,700&family=Instrument+Serif:ital@1&family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@400;500;600&family=Playfair+Display:ital,wght@1,600;1,700&family=Space+Grotesk:wght@600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Three.js 3D Engine Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+  <!-- THREE.JS 3D FLOATING SPARKLING STARS BACKGROUND CANVAS -->
+  <canvas id="canvas-3d"></canvas>
+
+  <!-- FLOATING TOP NAVIGATION BAR -->
+  <header class="top-nav-bar">
+    <button id="theme-toggle" class="theme-btn">[MODE: CREAM]</button>
+  </header>
+
+  <main>
+    <!-- SECTION 1: LANDING SCREEN (Full Viewport Height 100vh) -->
+    <section class="landing-section" id="landing">
+      <!-- Text Above Name -->
+      <div class="landing-preheading">
+        Aspiring Software Engineer and Problem Solver
+      </div>
+
+      <!-- Name: Elegant Cursive Serif (Khushi Kumari) -->
+      <h1 class="landing-name">Khushi Kumari</h1>
+
+      <!-- Text Directly Below Name -->
+      <div class="landing-subheading">
+        The more I learn, the more I realize there's always more to explore.<br>
+        And I think that's the best part about being an engineer.
+      </div>
+
+      <!-- Scroll Indicator -->
+      <div class="scroll-indicator">
+        <span>↓</span> SCROLL TO EXPLORE
+      </div>
+    </section>
+
+    <!-- SECTION 2: EDUCATION & INTRO FLOW (Single Unified Paragraph) -->
+    <section class="content-wrapper" id="intro">
+      <!-- Block 1: Education -->
+      <div class="education-block reveal-on-scroll">
+        <div class="education-heading">
+          FINAL YEAR IT UNDERGRAD<br>
+          NETAJI SUBHAS UNIVERSITY OF TECHNOLOGY
+        </div>
+        <div class="education-detail">
+          Exploring systems, one problem at a time.
+        </div>
+      </div>
+
+      <!-- Block 2: Philosophy Single Unified Paragraph -->
+      <div class="philosophy-block reveal-on-scroll">
+        <p class="philosophy-text-single">
+          Some people see software as lines of code. I see it as ideas made tangible.
+          I'm fascinated by the journey from a simple thought to a product that people
+          can use, trust, and rely on. That fascination keeps me building, learning,
+          and solving problems every day. My interests lie in network security and
+          cryptography, where curiosity meets precision and every challenge is an
+          opportunity to create something secure, thoughtful, and impactful—curious
+          about <strong>algorithms</strong>, <strong>networks</strong>, and the systems
+          that make things work; fascinated by <strong>cryptography</strong> where
+          mathematics meets security; building code that's <strong>elegant</strong>,
+          <strong>secure</strong>, and <strong>thoughtful</strong>.
+        </p>
+
+        <div class="decorative-line">───────────────────</div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: WORK & PROJECTS (BESPOKE EDITORIAL GRID SHOWCASE) -->
+    <section class="projects-section reveal-on-scroll" id="projects">
+      <div class="section-heading">PROJECTS & WORK</div>
+
+      <div class="editorial-projects-grid">
+
+        <!-- PROJECT 1: MINDFLOW -->
+        <a href="https://mind-flow-ai-powered-mental-health.vercel.app/" target="_blank" rel="noopener"
+          class="editorial-project-item" aria-label="Open MindFlow Project">
+          <div>
+            <div class="project-header-line">
+              <span class="project-num">01</span>
+              <h3 class="project-title">MINDFLOW <span class="launch-icon">↗</span></h3>
+            </div>
+            <div class="project-subtitle">AI & MENTAL WELLNESS PLATFORM</div>
+
+            <p class="project-description">
+              Building trust into every interaction. Mental health platform that doesn't cut corners on security.
+            </p>
+
+            <div class="project-image-frame">
+              <img src="assets/projects/mindflow.png" alt="MindFlow UI Screenshot" class="project-img">
+            </div>
+          </div>
+        </a>
+
+        <!-- PROJECT 2: QUANTUMVAULT -->
+        <a href="https://quantum-vault-beta.vercel.app/" target="_blank" rel="noopener" class="editorial-project-item"
+          aria-label="Open QuantumVault Project">
+          <div>
+            <div class="project-header-line">
+              <span class="project-num">02</span>
+              <h3 class="project-title">QUANTUMVAULT <span class="launch-icon">↗</span></h3>
+            </div>
+            <div class="project-subtitle">POST-QUANTUM CRYPTOGRAPHY RESEARCH</div>
+
+            <p class="project-description">
+              Mathematics that stays secure forever. Cryptography for the era that's coming.
+            </p>
+
+            <div class="project-image-frame">
+              <img src="assets/projects/quantumvault.png" alt="QuantumVault UI Screenshot" class="project-img">
+            </div>
+          </div>
+        </a>
+
+        <!-- PROJECT 3: NEUROSCALE-CPP -->
+        <a href="https://github.com/khushik-4/NeuroScale-CPP" target="_blank" rel="noopener"
+          class="editorial-project-item" aria-label="Open NeuroScale-CPP Repository">
+          <div>
+            <div class="project-header-line">
+              <span class="project-num">03</span>
+              <h3 class="project-title">NEUROSCALE-CPP <span class="launch-icon">↗</span></h3>
+            </div>
+            <div class="project-subtitle">NEURAL NETWORKS & SYSTEMS</div>
+
+            <p class="project-description">
+              No frameworks. Pure systems. Pure understanding. Understanding how brains think by building one.
+            </p>
+
+            <div class="project-image-frame">
+              <img src="assets/projects/neuroscale.png" alt="NeuroScale-CPP GUI Screenshot" class="project-img">
+            </div>
+          </div>
+        </a>
+
+        <!-- PROJECT 4: 3D SOLAR SYSTEM -->
+        <a href="https://3-d-solar-system-plum.vercel.app/" target="_blank" rel="noopener"
+          class="editorial-project-item" aria-label="Open 3D Solar System Project">
+          <div>
+            <div class="project-header-line">
+              <span class="project-num">04</span>
+              <h3 class="project-title">3D SOLAR SYSTEM <span class="launch-icon">↗</span></h3>
+            </div>
+            <div class="project-subtitle">GRAPHICS & ORBITAL MECHANICS</div>
+
+            <p class="project-description">
+              Learning 3D graphics the fun way.
+            </p>
+
+            <div class="project-image-frame">
+              <img src="assets/projects/solarsystem.png" alt="3D Solar System UI Screenshot" class="project-img">
+            </div>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- SECTION 4: QUOTE ABOVE CONTACT CTA -->
+    <section class="quote-section reveal-on-scroll">
+      <div class="quote-text">
+        I'm always looking for problems worth solving.<br>
+        If you're building something meaningful, I'd love to be a part of it.
+      </div>
+    </section>
+
+    <!-- SECTION 5: CONTACT & SOCIALS CTA -->
+    <section class="contact-cta-section reveal-on-scroll" id="contact">
+      <button id="open-contact-modal" class="cta-button">
+        → GET IN TOUCH
+      </button>
+    </section>
+
+    <!-- SECTION 6: QUOTE BELOW CONTACT CTA -->
+    <section class="quote-section reveal-on-scroll">
+      <div class="quote-text">From "What if?" to "It works."</div>
+      <div class="quote-subtext">Engineering ideas into reality.</div>
+    </section>
+  </main>
+
+  <!-- CONTACT MODAL & DARK OVERLAY BACKDROP -->
+  <div id="modal-overlay" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="contact-modal">
+      <div class="modal-header">
+        <h2 class="modal-title">LET'S CONNECT</h2>
+        <button id="close-modal-btn" class="modal-close-btn" aria-label="Close Modal">✕</button>
+      </div>
+
+      <ul class="modal-links-list">
+        <li class="modal-link-item">→ LinkedIn: <a href="https://www.linkedin.com/in/khushi-kumari-143449308/"
+            target="_blank" rel="noopener">linkedin.com/in/khushi-kumari</a></li>
+        <li class="modal-link-item">→ GitHub: <a href="https://github.com/khushik-4" target="_blank"
+            rel="noopener">github.com/khushik-4</a></li>
+        <li class="modal-link-item">→ LeetCode: <a href="https://leetcode.com/u/khushii34/" target="_blank"
+            rel="noopener">leetcode.com/u/khushii34</a></li>
+      </ul>
+
+      <div style="margin-bottom: 24px; font-family: var(--font-body); font-size: 1.125rem;">
+        → Email: <a href="mailto:khushi14662983@gmail.com">khushi14662983@gmail.com</a>
+      </div>
+
+      <div class="modal-footer-note">
+        "Security through mathematics. Software through first principles."
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Main JavaScript Engine -->
+  <script src="js/main.js"></script>
+</body>
+
+</html>
