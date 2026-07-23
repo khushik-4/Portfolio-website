@@ -88,7 +88,7 @@ Portfolio-website/
 
 ## Connect
 
-Portfolio: https://your-portfolio-link.vercel.app
+Portfolio: https://khusheee-portfolio.vercel.app/
 
 LinkedIn: https://linkedin.com/in/khushi-kumari-143449308
 
