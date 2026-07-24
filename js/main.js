@@ -1,319 +1,345 @@
 /* ==========================================================================
-   KHUSHI KUMARI — DYNAMIC PORTFOLIO
-   Three.js Small Sparkling 3D Star Background Engine & Dynamic Observer
+   KHUSHI KUMARI — Portfolio Engine
+   Three.js · 3D section reveals + word split for body text · Nav · Modal
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
   initThreeJSBackground();
-  initDynamicScrollReveals();
-  initProjectCarousel();
+  initScrollAnimations();
   initCard3DTilt();
+  initNavScroll();
   initContactModal();
   initThemeToggle();
-  initFooterDate();
 });
 
 /* ==========================================================================
-   1. THREE.JS ELEGANT SMALL 3D STAR BACKGROUND ENGINE
+   1. THREE.JS BACKGROUND
    ========================================================================== */
 function initThreeJSBackground() {
   const canvas = document.getElementById('canvas-3d');
   if (!canvas || typeof THREE === 'undefined') return;
 
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-  camera.position.z = 20;
+  const scene  = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, 0.1, 1000);
+  camera.position.z = 22;
 
-  const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 
   const starGroup = new THREE.Group();
   scene.add(starGroup);
 
-  // Helper to build 4-point or 5-point 3D Star Line Geometry
-  function createStarGeometry(numPoints) {
+  function makeStarGeo(pts) {
     const shape = new THREE.Shape();
-    const outerRadius = 0.5;
-    const innerRadius = 0.18;
-    const totalPoints = numPoints * 2;
-
-    for (let i = 0; i <= totalPoints; i++) {
-      const angle = (i / totalPoints) * Math.PI * 2;
-      const r = i % 2 === 0 ? outerRadius : innerRadius;
-      const x = Math.cos(angle) * r;
-      const y = Math.sin(angle) * r;
-      if (i === 0) shape.moveTo(x, y);
-      else shape.lineTo(x, y);
+    const N = pts * 2;
+    for (let i = 0; i <= N; i++) {
+      const angle = (i / N) * Math.PI * 2;
+      const r = i % 2 === 0 ? 0.5 : 0.18;
+      i === 0
+        ? shape.moveTo(Math.cos(angle) * r, Math.sin(angle) * r)
+        : shape.lineTo(Math.cos(angle) * r, Math.sin(angle) * r);
     }
-
-    const points = shape.getPoints(30);
-    return new THREE.BufferGeometry().setFromPoints(points);
+    return new THREE.BufferGeometry().setFromPoints(shape.getPoints(32));
   }
 
-  const starGeo4 = createStarGeometry(4);
-  const starGeo5 = createStarGeometry(5);
+  const geos   = [makeStarGeo(4), makeStarGeo(5), makeStarGeo(6)];
+  const colors = [0xd4a574, 0x8b7355, 0xc9956a, 0xa0785a];
+  const stars  = [];
 
-  // Create 20 small, sparkling 3D stars distributed across the viewport margins
-  const starCount = 20;
-  const starMeshes = [];
-
-  for (let i = 0; i < starCount; i++) {
-    const isGold = i % 2 === 0;
-    const geo = i % 2 === 0 ? starGeo4 : starGeo5;
-
-    const material = new THREE.LineBasicMaterial({
-      color: isGold ? 0xd4a574 : 0x8b7355,
-      transparent: true,
-      opacity: isGold ? 0.4 : 0.28,
-      linewidth: 1.5
-    });
-
-    const starMesh = new THREE.LineLoop(geo, material);
-
-    // Position stars on outer margins to avoid overlapping text
+  for (let i = 0; i < 30; i++) {
+    const star = new THREE.LineLoop(
+      geos[i % geos.length],
+      new THREE.LineBasicMaterial({ color: colors[i % colors.length], transparent: true, opacity: 0.22 + Math.random() * 0.3 })
+    );
     const side = i % 2 === 0 ? 1 : -1;
-    starMesh.position.x = side * (8 + Math.random() * 14);
-    starMesh.position.y = (Math.random() - 0.5) * 28;
-    starMesh.position.z = (Math.random() - 0.5) * 8;
-
-    // Small varying sizes (scale between 0.3 and 0.7)
-    const scale = 0.3 + Math.random() * 0.4;
-    starMesh.scale.set(scale, scale, scale);
-
-    starMesh.userData = {
-      rotSpeedZ: (Math.random() - 0.5) * 0.008,
-      twinkleSpeed: 0.002 + Math.random() * 0.003,
-      initialY: starMesh.position.y,
-      initialScale: scale
-    };
-
-    starGroup.add(starMesh);
-    starMeshes.push(starMesh);
+    star.position.set(side * (9 + Math.random() * 14), (Math.random() - 0.5) * 32, (Math.random() - 0.5) * 10);
+    const sc = 0.28 + Math.random() * 0.52;
+    star.scale.setScalar(sc);
+    star.userData = { rotZ: (Math.random() - 0.5) * 0.012, floatOff: Math.random() * Math.PI * 2, baseY: star.position.y, baseSc: sc };
+    starGroup.add(star);
+    stars.push(star);
   }
 
-  // Ambient Star Dust Particles
-  const particleCount = 35;
-  const particleGeo = new THREE.BufferGeometry();
-  const particlePos = new Float32Array(particleCount * 3);
-
-  for (let i = 0; i < particleCount * 3; i += 3) {
-    particlePos[i] = (Math.random() - 0.5) * 45;
-    particlePos[i + 1] = (Math.random() - 0.5) * 45;
-    particlePos[i + 2] = (Math.random() - 0.5) * 15;
+  function makeDust(n, spread, size, op) {
+    const geo = new THREE.BufferGeometry();
+    const p   = new Float32Array(n * 3);
+    for (let i = 0; i < n * 3; i += 3) {
+      p[i] = (Math.random() - 0.5) * spread;
+      p[i+1] = (Math.random() - 0.5) * spread;
+      p[i+2] = (Math.random() - 0.5) * 14;
+    }
+    geo.setAttribute('position', new THREE.BufferAttribute(p, 3));
+    return new THREE.Points(geo, new THREE.PointsMaterial({ color: 0xd4a574, size, transparent: true, opacity: op }));
   }
+  const d1 = makeDust(60, 55, 0.12, 0.2);
+  const d2 = makeDust(28, 44, 0.22, 0.14);
+  scene.add(d1, d2);
 
-  particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePos, 3));
-  const particleMat = new THREE.PointsMaterial({
-    color: 0xd4a574,
-    size: 0.15,
-    transparent: true,
-    opacity: 0.3
+  let mx = 0, my = 0, tmx = 0, tmy = 0, scrollY = window.scrollY;
+  window.addEventListener('mousemove', e => {
+    tmx = (e.clientX / innerWidth  - 0.5) * 2;
+    tmy = (e.clientY / innerHeight - 0.5) * 2;
   });
+  window.addEventListener('scroll', () => { scrollY = window.scrollY; });
 
-  const particlePoints = new THREE.Points(particleGeo, particleMat);
-  scene.add(particlePoints);
-
-  // Mouse & Scroll Parallax
-  let mouseX = 0;
-  let mouseY = 0;
-  let targetMouseX = 0;
-  let targetMouseY = 0;
-
-  window.addEventListener('mousemove', (e) => {
-    targetMouseX = (e.clientX / window.innerWidth - 0.5) * 2;
-    targetMouseY = (e.clientY / window.innerHeight - 0.5) * 2;
-  });
-
-  let scrollY = window.scrollY;
-  window.addEventListener('scroll', () => {
-    scrollY = window.scrollY;
-  });
-
-  // Animation Loop
-  function animate() {
+  (function animate() {
     requestAnimationFrame(animate);
-
-    mouseX += (targetMouseX - mouseX) * 0.05;
-    mouseY += (targetMouseY - mouseY) * 0.05;
-
-    starGroup.rotation.y = mouseX * 0.1 + scrollY * 0.0003;
-    starGroup.rotation.x = mouseY * 0.1;
-
-    starMeshes.forEach(mesh => {
-      mesh.rotation.z += mesh.userData.rotSpeedZ;
-      mesh.position.y = mesh.userData.initialY + Math.sin(Date.now() * 0.001 + mesh.position.x) * 0.8;
-
-      // Gentle scale twinkle
-      const s = mesh.userData.initialScale + Math.sin(Date.now() * mesh.userData.twinkleSpeed) * 0.08;
-      mesh.scale.set(s, s, s);
+    mx += (tmx - mx) * 0.04;
+    my += (tmy - my) * 0.04;
+    starGroup.rotation.y = mx * 0.12 + scrollY * 0.0004;
+    starGroup.rotation.x = my * 0.08;
+    const t = Date.now() * 0.001;
+    stars.forEach(s => {
+      s.rotation.z += s.userData.rotZ;
+      s.position.y  = s.userData.baseY + Math.sin(t + s.userData.floatOff) * 0.9;
+      const sc = s.userData.baseSc + Math.sin(t * 60 * 0.0015) * 0.07;
+      s.scale.setScalar(sc);
     });
-
-    particlePoints.rotation.y += 0.0003;
-
+    d1.rotation.y += 0.0004;
+    d2.rotation.y -= 0.0003;
     renderer.render(scene, camera);
-  }
-
-  animate();
+  })();
 
   window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.aspect = innerWidth / innerHeight;
     camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize(innerWidth, innerHeight);
   });
 }
 
 /* ==========================================================================
-   2. DYNAMIC SCROLL REVEALS (SCROLL UP & DOWN DIRECTIONS)
+   2. SCROLL ANIMATIONS
+   
+   TWO strategies:
+   A) WORD SPLIT — for plain text elements (no gradient). Each word flies in
+      from 3D depth with stagger. Replays every scroll revisit.
+   B) BLOCK REVEAL — for gradient text / headings / cards. The whole element
+      slides up from 3D perspective. Also replays every revisit.
    ========================================================================== */
-function initDynamicScrollReveals() {
-  const revealElements = document.querySelectorAll('.reveal-on-scroll');
-  if (revealElements.length === 0) return;
+function initScrollAnimations() {
 
-  let lastScrollY = window.scrollY;
+  // --- A) Elements that get WORD-SPLIT (plain text, no gradient on parent) ---
+  const WORD_SPLIT_SELECTORS = [
+    '.education-detail',
+    '.philosophy-text-single',
+    '.project-description',
+    '.landing-subheading',
+    '.landing-preheading',
+    '.quote-subtext',
+  ];
 
-  const observer = new IntersectionObserver((entries) => {
-    const currentScrollY = window.scrollY;
+  WORD_SPLIT_SELECTORS.forEach(sel => {
+    document.querySelectorAll(sel).forEach(el => {
+      splitWords(el);
+      el.classList.add('word-split');
+    });
+  });
 
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        entry.target.classList.remove('scroll-out-up', 'scroll-out-down');
+  // --- B) Elements that animate as a WHOLE BLOCK (gradient text, headings, etc.) ---
+  // They already have .reveal-on-scroll in HTML — just observe them.
+  // Also add .block-reveal to key text headings that aren't already observed.
+  const BLOCK_SELECTORS = [
+    '.education-heading',
+    '.section-heading',
+    '.project-title',
+    '.project-subtitle',
+    '.quote-text',
+  ];
+  BLOCK_SELECTORS.forEach(sel => {
+    document.querySelectorAll(sel).forEach(el => {
+      el.classList.add('block-reveal');
+    });
+  });
+
+  // --- Observe everything ---
+  const allTargets = document.querySelectorAll('.word-split, .reveal-on-scroll, .block-reveal');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(({ target, isIntersecting }) => {
+      if (isIntersecting) {
+        target.classList.remove('animate');
+        void target.offsetWidth; // force reflow → restarts keyframe
+        target.classList.add('animate');
       } else {
-        if (entry.boundingClientRect.top < 0) {
-          entry.target.classList.add('scroll-out-up');
-        } else {
-          entry.target.classList.add('scroll-out-down');
-        }
-        entry.target.classList.remove('visible');
+        target.classList.remove('animate');
       }
     });
+  }, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
 
-    lastScrollY = currentScrollY;
-  }, {
-    threshold: 0.1,
-    rootMargin: '0px 0px -20px 0px'
-  });
-
-  revealElements.forEach(el => observer.observe(el));
+  allTargets.forEach(el => observer.observe(el));
 }
 
-/* ==========================================================================
-   3. PROJECT CARD CAROUSEL CONTROLS
-   ========================================================================== */
-function initProjectCarousel() {
-  const container = document.getElementById('carousel-container');
-  const btnLeft = document.getElementById('carousel-prev');
-  const btnRight = document.getElementById('carousel-next');
+/* Split plain-text element content into word <span>s with staggered delays.
+   Inline elements (strong, em, b, i) are treated as single tokens so their
+   own styling (e.g. gradient background-clip) is preserved. */
+function splitWords(el) {
+  if (el.dataset.split) return;
+  el.dataset.split = 'true';
+  let delay = 0;
+  const STEP = 0.05;
 
-  if (!container || !btnLeft || !btnRight) return;
+  // Inline formatting tags we should NOT recurse into — treat as one token
+  const INLINE_TAGS = new Set(['STRONG', 'EM', 'B', 'I', 'MARK', 'CODE']);
+  // Tags we should completely skip
+  const SKIP_TAGS   = new Set(['SCRIPT', 'STYLE', 'SPAN', 'A', 'BR']);
 
-  const cardWidth = 488; // 460px card + 28px gap
+  function wrapAsWord(node) {
+    const span = document.createElement('span');
+    span.className = 'word';
+    span.style.animationDelay = `${delay.toFixed(3)}s`;
+    delay += STEP;
+    node.parentNode.insertBefore(span, node);
+    span.appendChild(node);
+  }
 
-  btnLeft.addEventListener('click', () => {
-    container.scrollBy({ left: -cardWidth, behavior: 'smooth' });
-  });
+  function walk(node) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const frag = document.createDocumentFragment();
+      node.textContent.split(/(\s+)/).forEach(tok => {
+        if (!tok) return;
+        if (/^\s+$/.test(tok)) {
+          frag.appendChild(document.createTextNode(tok));
+        } else {
+          const span = document.createElement('span');
+          span.className = 'word';
+          span.textContent = tok;
+          span.style.animationDelay = `${delay.toFixed(3)}s`;
+          delay += STEP;
+          frag.appendChild(span);
+        }
+      });
+      node.parentNode.replaceChild(frag, node);
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      if (SKIP_TAGS.has(node.tagName)) return;
+      if (INLINE_TAGS.has(node.tagName)) {
+        // Wrap the whole element (e.g. <strong>) as a single .word
+        wrapAsWord(node);
+      } else {
+        // Recurse into block/container elements
+        Array.from(node.childNodes).forEach(walk);
+      }
+    }
+  }
 
-  btnRight.addEventListener('click', () => {
-    container.scrollBy({ left: cardWidth, behavior: 'smooth' });
-  });
+  Array.from(el.childNodes).forEach(walk);
 }
 
+
 /* ==========================================================================
-   4. INTERACTIVE 3D CARD TILT EFFECT
+   3. 3D CARD TILT — rise + glow on hover
    ========================================================================== */
 function initCard3DTilt() {
-  const cards = document.querySelectorAll('.project-card');
+  document.querySelectorAll('.editorial-project-item').forEach(card => {
+    let raf = null, tX = 0, tY = 0, cX = 0, cY = 0;
+    let tRise = 0, cRise = 0;   // vertical lift in px
+    const lerp = (a, b, t) => a + (b - a) * t;
 
-  cards.forEach(card => {
-    card.addEventListener('mousemove', (e) => {
-      if (window.innerWidth < 768) return;
+    function tick() {
+      cX    = lerp(cX,    tX,    0.1);
+      cY    = lerp(cY,    tY,    0.1);
+      cRise = lerp(cRise, tRise, 0.1);
 
-      const rect = card.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+      card.style.transform =
+        `perspective(1000px) rotateX(${cX}deg) rotateY(${cY}deg) translateY(${-cRise}px) translateZ(${cRise * 0.5}px)`;
 
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
+      const stillMoving =
+        Math.abs(cX - tX) > 0.01 ||
+        Math.abs(cY - tY) > 0.01 ||
+        Math.abs(cRise - tRise) > 0.1;
 
-      const rotateX = ((y - centerY) / centerY) * -6;
-      const rotateY = ((x - centerX) / centerX) * 6;
+      if (stillMoving) {
+        raf = requestAnimationFrame(tick);
+      } else raf = null;
+    }
 
-      card.style.transform = `translateY(-8px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    card.addEventListener('mouseenter', () => {
+      card.classList.add('is-hovered');
+      tRise = 14; // px rise
+      if (!raf) raf = requestAnimationFrame(tick);
+    });
+
+    card.addEventListener('mousemove', e => {
+      if (innerWidth < 768) return;
+      const r = card.getBoundingClientRect();
+      tX = ((e.clientY - r.top  - r.height/2) / (r.height/2)) * -5;
+      tY = ((e.clientX - r.left - r.width /2) / (r.width /2)) *  6;
+      if (!raf) raf = requestAnimationFrame(tick);
     });
 
     card.addEventListener('mouseleave', () => {
-      card.style.transform = 'translateY(0) rotateX(0deg) rotateY(0deg)';
+      card.classList.remove('is-hovered');
+      tX = 0; tY = 0; tRise = 0;
+      if (!raf) raf = requestAnimationFrame(tick);
     });
   });
 }
 
+
 /* ==========================================================================
-   5. CONTACT MODAL & LIGHT/DARK THEME TOGGLE
+   4. NAVIGATION
+   ========================================================================== */
+function initNavScroll() {
+  const nav = document.getElementById('top-nav');
+
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 40);
+    highlightActive();
+  });
+
+  document.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const el = document.getElementById(link.dataset.target);
+      if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 80, behavior: 'smooth' });
+    });
+  });
+
+  function highlightActive() {
+    const ids = ['landing', 'about', 'projects', 'contact'];
+    let current = 'landing';
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && window.scrollY >= el.offsetTop - 150) current = id;
+    });
+    document.querySelectorAll('.nav-link').forEach(l => {
+      l.classList.toggle('active', l.dataset.target === current);
+    });
+  }
+  highlightActive();
+}
+
+/* ==========================================================================
+   5. CONTACT MODAL
    ========================================================================== */
 function initContactModal() {
-  const ctaBtn = document.getElementById('open-contact-modal');
-  const modalOverlay = document.getElementById('modal-overlay');
-  const closeBtn = document.getElementById('close-modal-btn');
+  const cta     = document.getElementById('open-contact-modal');
+  const overlay = document.getElementById('modal-overlay');
+  const close   = document.getElementById('close-modal-btn');
+  if (!cta || !overlay || !close) return;
 
-  if (!ctaBtn || !modalOverlay || !closeBtn) return;
+  const open = () => { overlay.classList.add('active');    document.body.style.overflow = 'hidden'; };
+  const shut = () => { overlay.classList.remove('active'); document.body.style.overflow = ''; };
 
-  function openModal() {
-    modalOverlay.classList.add('active');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function closeModal() {
-    modalOverlay.classList.remove('active');
-    document.body.style.overflow = '';
-  }
-
-  ctaBtn.addEventListener('click', openModal);
-  closeBtn.addEventListener('click', closeModal);
-
-  modalOverlay.addEventListener('click', (e) => {
-    if (e.target === modalOverlay) closeModal();
-  });
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
-      closeModal();
-    }
-  });
+  cta.addEventListener('click', open);
+  close.addEventListener('click', shut);
+  overlay.addEventListener('click', e => { if (e.target === overlay) shut(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') shut(); });
 }
 
+/* ==========================================================================
+   6. THEME TOGGLE
+   ========================================================================== */
 function initThemeToggle() {
-  const themeBtn = document.getElementById('theme-toggle');
-  if (!themeBtn) return;
-
-  const savedTheme = localStorage.getItem('khushi_portfolio_theme');
-  if (savedTheme === 'dark') {
-    document.documentElement.setAttribute('data-theme', 'dark');
-    themeBtn.textContent = '[MODE: DARK]';
-  } else {
-    document.documentElement.setAttribute('data-theme', 'light');
-    themeBtn.textContent = '[MODE: CREAM]';
-  }
-
-  themeBtn.addEventListener('click', () => {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    if (currentTheme === 'dark') {
-      document.documentElement.setAttribute('data-theme', 'light');
-      themeBtn.textContent = '[MODE: CREAM]';
-      localStorage.setItem('khushi_portfolio_theme', 'light');
-    } else {
-      document.documentElement.setAttribute('data-theme', 'dark');
-      themeBtn.textContent = '[MODE: DARK]';
-      localStorage.setItem('khushi_portfolio_theme', 'dark');
-    }
+  const btn = document.getElementById('theme-toggle');
+  if (!btn) return;
+  const apply = theme => {
+    document.documentElement.setAttribute('data-theme', theme);
+    btn.textContent = theme === 'dark' ? 'DARK' : 'CREAM';
+    localStorage.setItem('khushi_theme', theme);
+  };
+  apply(localStorage.getItem('khushi_theme') === 'dark' ? 'dark' : 'light');
+  btn.addEventListener('click', () => {
+    apply(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
   });
-}
-
-function initFooterDate() {
-  const dateSpan = document.getElementById('footer-current-date');
-  if (!dateSpan) return;
-
-  const now = new Date();
-  const options = { month: 'long', day: 'numeric', year: 'numeric' };
-  dateSpan.textContent = now.toLocaleDateString('en-US', options);
 }
